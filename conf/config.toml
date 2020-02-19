@@ -1,0 +1,9 @@
+log_file = "lala"
+
+[mysql]
+db = "data_cert"
+db_ip = "192.168.91.18"
+db_port = "3310"
+db_user = "data_cert"
+db_password = "data_cert"
+db_charset = "utf8"
