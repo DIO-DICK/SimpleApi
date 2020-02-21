@@ -1,10 +1,10 @@
 package models
 
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
+	"simpleapi/app/cache"
 	orm "simpleapi/app/databases"
-	cache "simpleapi/app/cache"
-
+	"simpleapi/app/module/logger"
 )
 // 对应表项的映射
 type T02DabsUpLabelCfg struct {
@@ -35,17 +35,17 @@ func (la *T02DabsUpLabelCfg) GetAllLabelCfg() (label2 []T02DabsUpLabelCfg, err e
 func (la *T02DabsUpLabelCfg) GetLabelCfgByField(field string) (label2 *T02DabsUpLabelCfg, err error) {
 	result, ok := cache.LabelCache.Get(field)
 	if ok {
-		fmt.Println("缓存命中")
+		logger.Log.WithFields(logrus.Fields{"name":"zheng"}).Info("缓存命中")
 		res := result.(T02DabsUpLabelCfg)
 		return &res, nil
 	} else {
 		orm.DbMysql.SingularTable(true)
 		if err =orm.DbMysql.Model(la).Where("id = ?", field).Find(&label3).Error; err != nil {
-			fmt.Println("出现错误: %v", err)
+			logger.Log.WithFields(logrus.Fields{"name":"zheng"}).Info("发生错误%v",err)
 			return nil, err
 		}
 
-		fmt.Println("成功从数据库中获取数据")
+		logger.Log.WithFields(logrus.Fields{"name":"zheng"}).Info("成功从数据库获取数据")
 		cache.LabelCache.Set(field, label3,0)
 		return &label3, nil
 	}

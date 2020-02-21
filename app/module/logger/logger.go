@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"os"
 	"path"
 	"simpleapi/app/conf"
@@ -12,12 +12,12 @@ var Log_dir string
 var Log_file string
 
 
-func StatDir() (b bool, e error) {
+func StatDir(dir1 string) (b bool, e error) {
 	dir, path_err := os.Getwd()
 	if path_err != nil {
 		return false, path_err
 	}
-	log_dir := path.Join(dir, "/log")
+	log_dir := path.Join(dir, dir1)
 	_, err := os.Stat(log_dir)
 	if err == nil {
 		Log_dir = log_dir
@@ -32,10 +32,10 @@ func StatDir() (b bool, e error) {
 	}
 }
 
-func StatFile() (b bool, e error) {
+func StatFile(dir1 string) (b bool, e error) {
 	t := time.Now()
 	t1 := t.Format("20060102")
-	ok, err := StatDir()
+	ok, err := StatDir(dir1)
 	if ok {
 		Log_file = path.Join(Log_dir, (conf.Get().Log_file+t1))
 		_, err := os.Lstat(Log_file)
@@ -53,12 +53,15 @@ func StatFile() (b bool, e error) {
 	return false, err
 }
 
-func init() {
-	ok, _ := StatFile()
-	if ok {
-		fmt.Println("日志文件初始化成功")
-	} else {
-		fmt.Println("日志文件初始化失败")
-	}
+var Log *logrus.Logger
 
+func init() {
+	Log = logrus.New()
+	ll := &lineHook{"source",0,logrus.AllLevels}
+	Log.AddHook(ll)
+	ok, _ := StatFile("/log")
+	if !ok {
+		Log.WithFields(logrus.Fields{"name":"zheng"}).Error("目录与文件创建失败")
+	}
+	Log.WithFields(logrus.Fields{"name":"zheng"}).Info("目录与文件创建成功")
 }
