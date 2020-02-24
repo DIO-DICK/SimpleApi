@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
 	"path"
@@ -56,12 +57,16 @@ func StatFile(dir1 string) (b bool, e error) {
 var Log *logrus.Logger
 
 func init() {
-	Log = logrus.New()
-	ll := &lineHook{"source",0,logrus.AllLevels}
-	Log.AddHook(ll)
-	ok, _ := StatFile("/log")
-	if !ok {
-		Log.WithFields(logrus.Fields{"name":"zheng"}).Error("目录与文件创建失败")
+	var ls PathMap
+	if b, _ := StatFile("/log"); !b {
+		fmt.Println("logfile create failed")
+	} else {
+		ls = PathMap{
+			logrus.InfoLevel: Log_file,
+			logrus.ErrorLevel: Log_file,
+		}
 	}
-	Log.WithFields(logrus.Fields{"name":"zheng"}).Info("目录与文件创建成功")
+	Log = logrus.New()
+	file_log := NewFileHook(ls, &logrus.JSONFormatter{})
+	Log.Hooks.Add(file_log)
 }
