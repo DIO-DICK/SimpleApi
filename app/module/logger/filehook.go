@@ -147,8 +147,10 @@ func (hook *FileHook) Fire(entry *logrus.Entry) error {
 	hook.Lock.Lock()
 	defer hook.Lock.Unlock()
 	if hook.Writers != nil || hook.HasDefaultWriter {
+		entry.Data["source"] = getFunc(0)
 		return hook.ioWriter(entry)
 	} else if hook.Paths != nil || hook.HasDefaultPath {
+		entry.Data["source"] = getFunc(0)
 		return hook.filewrite(entry)
 	}
 	return nil
